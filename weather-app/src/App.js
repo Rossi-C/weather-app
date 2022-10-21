@@ -9,18 +9,13 @@ function App() {
   const [windSpeed, setWindSpeed] = useState(null);
   const [city, setCity] = useState('Charleston');
   const [country, setCountry] = useState('US');
-  const [isImperial, setIsImperial] = useState(true);
+  const [units, setUnits] = useState('imperial');
+  const [err, setErr] = useState(false);
 
-  const updateWeather = async (cityName, countryCode) => {
-    let countryLower = countryCode.toLowerCase();
+  const updateWeather = async (cityName, countryCode, units) => {
+    setErr(false);
     try {
-      if (countryLower === 'us' || countryLower === 'mm' || countryLower === 'lr') {
-        setIsImperial(true);
-      } else {
-        setIsImperial(false);
-      }
-      let { main: { temp, humidity }, weather: [{ description }], wind: { speed } } = await getWeatherData(cityName, countryLower);
-      console.log(speed);
+      let { main: { temp, humidity }, weather: [{ description }], wind: { speed } } = await getWeatherData(cityName, countryCode, units);
       if (temp || humidity || description || speed) {
         setTemp(temp);
         setHumidity(humidity);
@@ -28,67 +23,97 @@ function App() {
         setWindSpeed(speed);
       }
     } catch (err) {
+      setErr(true);
       console.log(`data not found`);
       console.log(err);
     }
   }
 
   useEffect(() => {
-    updateWeather(city, country);
-    console.log(windSpeed);
-  }, [])
+    updateWeather(city, country, units);
+  }, [units])
 
   const handleClick = async (e) => {
     e.preventDefault();
-    console.log(city, country);
-    await updateWeather(city, country);
+    await updateWeather(city, country, units);
   }
 
   return (
     <div className="App">
       <h1>Global Weather</h1>
-      <p>Enter your city and country to get started!</p>
+      <p>Enter a city and country and choose a unit of measurement to get started!</p>
       <form>
-        <label>
-          City:
-          <input
-            className='Input'
-            type='text'
-            name='city'
-            value={city}
-            onChange={e => setCity(e.target.value)} />
-        </label>
-        <br></br>
-        <label>
-          Country:
-          <input
-            className='Input'
-            type='text'
-            name='country'
-            value={country}
-            onChange={e => setCountry(e.target.value)} />
-        </label>
+        <div>
+          <label>
+            City:
+            <input
+              className='Input'
+              type='text'
+              name='city'
+              value={city}
+              onChange={e => setCity(e.target.value)} />
+          </label>
+          <label>
+            Country:
+            <input
+              className='Input'
+              type='text'
+              name='country'
+              value={country}
+              onChange={e => setCountry(e.target.value)} />
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              className='Input'
+              type='radio'
+              checked={units === 'imperial'}
+              name='imperial'
+              value='imperial'
+              onChange={e => setUnits(e.target.value)} />
+            Imperial
+          </label>
+          <label>
+            <input
+              className='Input'
+              type='radio'
+              checked={units === 'metric'}
+              name='metric'
+              value='metric'
+              onChange={e => setUnits(e.target.value)} />
+            Metric
+          </label>
+        </div>
       </form>
-      <button
-        className='Input'
-        type='button'
-        onClick={handleClick}>
-        Search Weather
-      </button>
-      <div className='Description'>
-        {isImperial ?
-          <p>Temperature: {temp}&deg;F</p>
-          :
-          <p>Temperature: {temp}&deg;C</p>
-        }
-        <p>Weather Condition: {description} </p>
-        <p>Humidity: {humidity}% </p>
-        {isImperial ?
-          <p>Wind Speed: {windSpeed} Miles per hour </p>
-          :
-          <p>Wind Speed: {windSpeed} Meters per Second</p>
-        }
+      <div className='Button'>
+        <button
+          type='button'
+          onClick={handleClick}>
+          Search Weather
+        </button>
       </div>
+      {err ?
+        <div className='Description'>
+          <p>We cannot find weather information for the city and country.</p>
+          <p>Try entering a new location!</p>
+        </div>
+        :
+        <div className='Description'>
+          {units === 'imperial' ?
+            <p>Temperature: {temp}&deg;F</p>
+            :
+            <p>Temperature: {temp}&deg;C</p>
+          }
+          <p>Weather Condition: {description} </p>
+          <p>Humidity: {humidity}% </p>
+          {units === 'imperial' ?
+            <p>Wind Speed: {windSpeed} Miles per hour </p>
+            :
+            <p>Wind Speed: {windSpeed} Meters per Second</p>
+          }
+        </div>
+      }
     </div>
   );
 }

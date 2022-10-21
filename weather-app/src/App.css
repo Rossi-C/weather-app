@@ -5,8 +5,11 @@
 }
 
 .Input {
-  margin-top: .5rem;
-  margin-bottom: .5rem;
+  margin: .5rem;
+}
+
+.Button {
+  margin-top: 1rem;
 }
 
 .Description {
