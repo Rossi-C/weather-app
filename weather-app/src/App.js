@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { getWeatherData } from './api';
 import EditLocation from './components/location';
 import EditUnits from './components/units';
+import WeatherCondition from './components/condition';
 
 function App() {
   const [temp, setTemp] = useState(null);
   const [description, setDescription] = useState(null);
   const [humidity, setHumidity] = useState(null);
   const [windSpeed, setWindSpeed] = useState(null);
+  const [weatherId, setWeatherId] = useState(null);
   const [city, setCity] = useState('Charleston');
   const [country, setCountry] = useState('US');
   const [units, setUnits] = useState('imperial');
@@ -17,11 +19,12 @@ function App() {
   const updateWeather = async (cityName, countryCode, units) => {
     setErr(false);
     try {
-      let { main: { temp, humidity }, weather: [{ description }], wind: { speed } } = await getWeatherData(cityName, countryCode, units);
-      if (temp || humidity || description || speed) {
+      let { main: { temp, humidity }, weather: [{ description, id }], wind: { speed } } = await getWeatherData(cityName, countryCode, units);
+      if (temp || humidity || description || id || speed) {
         setTemp(temp);
         setHumidity(humidity);
         setDescription(description);
+        setWeatherId(id);
         setWindSpeed(speed);
       }
     } catch (err) {
@@ -42,8 +45,10 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Global Weather</h1>
-      <p>Enter a city and country and choose a unit of measurement to get started!</p>
+      <div>
+        <h1>Global Weather</h1>
+        <p>Enter a city and country and choose a unit of measurement to get started!</p>
+      </div>
       <div>
         <EditLocation city={city} setCity={setCity} country={country} setCountry={setCountry} />
       </div>
@@ -69,7 +74,7 @@ function App() {
             :
             <p>Temperature: {temp}&deg;C</p>
           }
-          <p>Weather Condition: {description} </p>
+          <WeatherCondition description={description} weatherId={weatherId} />
           <p>Humidity: {humidity}% </p>
           {units === 'imperial' ?
             <p>Wind Speed: {windSpeed} Miles per hour </p>
