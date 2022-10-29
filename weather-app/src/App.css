@@ -2,6 +2,9 @@
   text-align: center;
   display: grid;
   place-items: center;
+  background-image: url('../public/sky.svg');
+  height: 100vh;
+  width: 100vw;
 }
 
 .Input {
@@ -14,7 +17,6 @@
 
 .Description {
   width: 500px;
-  /* border: 1px solid black; */
   text-transform: capitalize;
   margin-top: .5rem;
 }
